@@ -10,13 +10,21 @@ public class ContaCorrente extends ContaBancaria implements IImprimivel<Integer,
     }
 
     @Override
+    boolean verficar(double valor) {
+        if (valor > getSaldo()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public double sacar(double valor) {
-        return super.sacar(valor-3);
+        return super.sacar(valor - 3);
     }
 
     @Override
     public double depositar(double valor) {
-        return super.depositar(valor-3);
+        return super.depositar(valor - 3);
     }
 
     @Override

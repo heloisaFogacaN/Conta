@@ -19,6 +19,10 @@ public class Banco implements IImprimivel<Integer, ContaBancaria>{
         return null;
     }
 
+    public ArrayList<ContaBancaria> procurarTodos(){
+        return contas;
+    }
+
     @Override
     public String mostrarDados(Integer numero) {
         for (ContaBancaria conta : contas) {

@@ -3,6 +3,7 @@ import java.util.Scanner;
 public class Main2 {
     static Banco banco = new Banco();
     static Scanner scanner = new Scanner(System.in);
+    static ContaBancaria contaLogada;
 
     public static void main(String[] args) {
         menu();
@@ -13,9 +14,9 @@ public class Main2 {
         do {
             System.out.println("""
                     Bem-vindo!
-                    
+                                        
                     Informe a ação que deseja solicitar:
-                    
+                                        
                     1- Cadastrar
                     2- Selecionar conta
                     3- Remover conta
@@ -23,7 +24,7 @@ public class Main2 {
                     5- Finalizar        
                     """);
             opcao = scanner.nextInt();
-            switch (opcao){
+            switch (opcao) {
                 case 1:
                     cadastrar();
                     break;
@@ -34,9 +35,10 @@ public class Main2 {
                     remover();
                     break;
                 case 4:
-//                    gerarRelatorio();
+                    gerarRelatorio();
                     break;
                 case 5:
+                    contaLogada = null;
                     System.exit(0);
                     break;
                 default:
@@ -57,11 +59,12 @@ public class Main2 {
                                     
                     """);
             opcao = scanner.nextInt();
-            cadastrar(opcao);
-            if (opcao != 1 || opcao != 2 || opcao != 0) {
+            if (opcao == 1 || opcao == 2) {
+                cadastrar(opcao);
+            } else if (opcao != 1 && opcao != 2 && opcao != 0) {
                 System.out.println("Opção inválida!");
             }
-        } while (opcao != 0 && opcao != 1 && opcao != 2);
+        } while (!(opcao == 0 || opcao == 1 || opcao == 2));
     }
 
     private static void cadastrar(int opcao) {
@@ -69,33 +72,140 @@ public class Main2 {
         int numero = scanner.nextInt();
         System.out.println("Informe o saldo: ");
         double saldo = scanner.nextDouble();
-        ContaBancaria contaAdd;
-        if (opcao == 1) {
-            contaAdd = new ContaPoupanca(numero, saldo);
-        } else {
-            contaAdd = new ContaCorrente(numero, saldo);
+        ContaBancaria contaAdd = banco.procurarConta(numero);
+        {
+            if (contaAdd == null) {
+                if (opcao == 1) {
+                    contaAdd = new ContaPoupanca(numero, saldo);
+                } else {
+                    contaAdd = new ContaCorrente(numero, saldo);
+                }
+                banco.inserir(contaAdd);
+            } else {
+                System.out.println("Já há uma conta com este número!");
+            }
         }
-        banco.inserir(contaAdd);
     }
+
     private static void login() {
-        ContaBancaria conta;
         do {
             System.out.println("Informe o número da conta: ");
-            conta = banco.procurarConta(scanner.nextInt());
-            if (conta == null){
+            contaLogada = banco.procurarConta(scanner.nextInt());
+            if (contaLogada == null) {
                 System.out.println("Conta inexistente!");
             }
-        }while (conta==null);
-//        menuLogin();
+        } while (contaLogada == null);
+        menuLogin();
     }
 
-    private static void remover(){
+    private static void remover() {
         System.out.println("Informe o número da conta que deseja remover: ");
         int numero = scanner.nextInt();
-        System.out.println("Informe o saldo: ");
-        double saldo = scanner.nextDouble();
 
-        ContaBancaria conta= new
-        banco.remover(scanner.nextInt());
+        ContaBancaria contaExcluir = banco.procurarConta(numero);
+        banco.remover(contaExcluir);
+    }
+
+    private static void gerarRelatorio() {
+        for (ContaBancaria conta : banco.procurarTodos()) {
+            System.out.println(conta.toString() + "\n");
+        }
+    }
+
+    private static void gerarRelatorio(int numero) {
+        System.out.println(banco.procurarConta(numero));
+    }
+
+    private static void menuLogin() {
+        int opcao;
+        do {
+            System.out.println("""
+                    Informe a ação que você deseja efetuar:
+                                    
+                    1- Depositar
+                    2- Sacar
+                    3- Tranferir
+                    4- Gerar relatório
+                    5- Sair
+                    """);
+            opcao = scanner.nextInt();
+            switch (opcao) {
+                case 1:
+                    depositar();
+                    break;
+                case 2:
+                    sacar();
+                    break;
+                case 3:
+                    tranferir();
+                    break;
+                case 4:
+                    gerarRelatorio(contaLogada.getNumero());
+            }
+        } while (opcao != 5);
+    }
+
+    private static void depositar() {
+        System.out.println("Informe o valor que deseja depositar: ");
+        contaLogada.depositar(scanner.nextDouble());
+    }
+
+    private static void sacar() {
+        double valor;
+        boolean verificar = false;
+        do {
+            System.out.println("Informe o valor que deseja sacar: ");
+            valor = scanner.nextDouble();
+
+            if (contaLogada instanceof ContaPoupanca) {
+                verificar = ((ContaPoupanca) contaLogada).verificar(valor);
+                if (!verificar) {
+                    System.out.println("Você não possui saldo o suficiente!");
+                }
+            } else if (contaLogada instanceof ContaCorrente) {
+
+                verificar = contaLogada.verficar(valor);
+                if (!verificar) {
+                    System.out.println("Você não possui saldo o suficiente!");
+                }
+            }
+        } while (!verificar);
+        contaLogada.sacar(valor);
+    }
+
+    private static void tranferir() {
+        ContaBancaria conta;
+        do {
+            System.out.println("Informe a conta que você deseja efetuar a transferência:");
+            int numero = scanner.nextInt();
+            conta = banco.procurarConta(numero);
+            if (conta == null) {
+                System.out.println("Essa conta é inexistente!");
+            }
+        } while (conta == null);
+
+        double valor;
+        boolean verificar = false;
+        do {
+            System.out.println("Informe o valor que deseja sacar: ");
+            valor = scanner.nextDouble();
+
+            if (contaLogada instanceof ContaPoupanca) {
+                do {
+                    verificar = ((ContaPoupanca) contaLogada).verificar(valor);
+                    if (!verificar) {
+                        System.out.println("Você não possui saldo o suficiente!");
+                    }
+                } while (!verificar);
+            } else if (contaLogada instanceof ContaCorrente) {
+                verificar = contaLogada.verficar(valor);
+                if (!verificar) {
+                    System.out.println("Você não possui saldo o suficiente!");
+                }
+            }
+
+        } while (!verificar);
+
+        contaLogada.tranferir(valor, conta);
     }
 }

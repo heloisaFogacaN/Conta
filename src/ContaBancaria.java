@@ -2,21 +2,30 @@ public abstract class ContaBancaria {
     private int numero;
     private double saldo;
 
-    public ContaBancaria(int numero, double saldo){
+    public ContaBancaria(int numero, double saldo) {
         this.numero = numero;
         this.saldo = saldo;
     }
 
-    public double sacar(double valor){
-        return saldo-=valor;
+    public double sacar(double valor) {
+        return saldo -= valor;
     }
 
-    public double depositar(double valor){
-        return saldo+=valor;
+    public double depositar(double valor) {
+        return saldo += valor;
     }
 
-    public void tranferir(double valor, ContaBancaria contaBancaria, int numero){
+    boolean verficar(double valor) {
+        return false;
+    }
 
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+
+    public void tranferir(double valor, ContaBancaria contaBancaria) {
+        contaBancaria.depositar(valor);
+        this.sacar(valor);
     }
 
     public int getNumero() {
@@ -30,7 +39,7 @@ public abstract class ContaBancaria {
     @Override
     public String toString() {
         return "Número: " + numero +
-                "\nSaldo: " + saldo ;
+                "\nSaldo: " + saldo;
     }
 
 }

@@ -21,7 +21,7 @@ public class ContaPoupanca extends ContaBancaria implements IImprimivel<Integer,
     }
 
     public boolean verificar(double valor) {
-        if ((getSaldo() - valor) < (limite)) {
+        if ((getSaldo() - valor) < limite) {
             return false;
         }
         return true;
