@@ -40,6 +40,7 @@ public class ContaPoupanca extends ContaBancaria implements IImprimivel<Integer,
     @Override
     public String toString() {
         return "Conta Poupanca\n" +
-                super.toString();
+                super.toString() +
+                "\nLimite: " + limite;
     }
 }

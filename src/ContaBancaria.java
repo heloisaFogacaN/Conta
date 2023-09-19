@@ -19,10 +19,6 @@ public abstract class ContaBancaria {
         return false;
     }
 
-    public void setSaldo(double saldo) {
-        this.saldo = saldo;
-    }
-
     public void tranferir(double valor, ContaBancaria contaBancaria) {
         contaBancaria.depositar(valor);
         this.sacar(valor);
